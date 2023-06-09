@@ -285,4 +285,7 @@ resource "azurerm_user_assigned_identity" "app_user_identity" {
       Name = format("%s", "${var.environment}-${var.solution}-${var.service_name}-app-umi-${var.location_short_ae}-1")
     }
   )
+  lifecycle {
+    prevent_destroy = true
+  }
 }
