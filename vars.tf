@@ -78,6 +78,12 @@ variable service_plan_sku_name {
   description = "Service plan sku name, valid values are "
 }
 
+variable enable_zone_redundancy {
+  type        = bool
+  default     = false
+  description = "Whether to enable service plan zone redundancy"
+}
+
 ## Application Insights
 variable "create_application_insights" {
   description = "Whether to create app service plan and use it for all resources"

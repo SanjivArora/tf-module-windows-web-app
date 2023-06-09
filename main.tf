@@ -11,6 +11,7 @@ locals {
  
  
    app_insights = try(data.azurerm_application_insights.app_insights[0], try(azurerm_application_insights.app_insights[0], {}))
+   
    default_app_settings = var.application_insights_enabled ? {
     APPLICATION_INSIGHTS_IKEY             = try(local.app_insights.instrumentation_key, "")
     APPINSIGHTS_INSTRUMENTATIONKEY        = try(local.app_insights.instrumentation_key, "")
@@ -21,6 +22,7 @@ locals {
 
    default_site_config = {
     always_on = "true"
+    scm_minimum_tls_version = "1.2"
    }
   site_config = merge(local.default_site_config, var.site_config)
 
@@ -153,6 +155,7 @@ resource "azurerm_service_plan" "this_plan" {
   resource_group_name = local.resource_group_name
   os_type                = var.os_type
   sku_name              = var.service_plan_sku_name
+  zone_balancing_enabled = var.enable_zone_redundancy
   tags     = merge(
   var.common_tags, { 
   Name = format("%s", var.service_plan_name) 
