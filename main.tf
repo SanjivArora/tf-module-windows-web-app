@@ -26,16 +26,16 @@ locals {
    }
   site_config = merge(local.default_site_config, var.site_config)
 
-  # cidrs = [for cidr in var.authorized_ips : {
-  #   name                      = "ip_restriction_cidr_${join("", [1, index(var.authorized_ips, cidr)])}"
-  #   ip_address                = cidr
-  #   virtual_network_subnet_id = null
-  #   service_tag               = null
-  #   subnet_id                 = null
-  #   priority                  = join("", [1, index(var.authorized_ips, cidr)])
-  #   action                    = "Allow"
-  #   # headers                   = local.ip_restriction_headers
-  # }]
+  cidrs = [for cidr in var.authorized_ips : {
+    name                      = "ip_restriction_cidr_${join("", [1, index(var.authorized_ips, cidr)])}"
+    ip_address                = cidr
+    virtual_network_subnet_id = null
+    service_tag               = null
+    subnet_id                 = null
+    priority                  = join("", [1, index(var.authorized_ips, cidr)])
+    action                    = "Allow"
+    headers                   = local.ip_restriction_headers
+  }]
 
   # subnets = [for subnet in var.authorized_subnet_ids : {
   #   name                      = "ip_restriction_subnet_${join("", [1, index(var.authorized_subnet_ids, subnet)])}"
@@ -190,7 +190,8 @@ resource "azurerm_windows_web_app" "this_service" {
       always_on                = lookup(site_config.value, "always_on", null)
       minimum_tls_version      = lookup(site_config.value, "minimum_tls_version", lookup(site_config.value, "min_tls_version", "1.2"))
       vnet_route_all_enabled = var.app_service_vnet_integration_subnet_id != null
-      ip_restriction              = local.service_tags
+      ip_restriction              = concat(local.service_tags, local.cidrs)
+      scm_use_main_ip_restriction = true
     #   windows_fx_version = lookup(site_config.value, "windows_fx_version", null)
     #   app_command_line         = lookup(site_config.value, "app_command_line", null)
     #   default_documents        = lookup(site_config.value, "default_documents", null)
